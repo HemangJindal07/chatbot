@@ -1,10 +1,13 @@
 # backend/app/services/chatbot.py
 from openai import OpenAI
 from app.services.vector_store import PineconeVectorStore
+from app.services.redis_client import get_redis_cache
 from app.config import get_settings
 from typing import Dict, List
 import uuid
+import logging
 
+logger = logging.getLogger(__name__)
 settings = get_settings()
 
 class PolicyChatbot:
@@ -14,6 +17,7 @@ class PolicyChatbot:
             base_url=settings.OPENAI_BASE_URL
         )
         self.vector_store = PineconeVectorStore()
+        self.cache = get_redis_cache()
         self.system_prompt = self._create_system_prompt()
     
     def _create_system_prompt(self) -> str:
@@ -147,12 +151,20 @@ NEVER:
         return any(keyword in query_lower for keyword in followup_keywords)
     
     def chat(self, user_query: str, conversation_id: str = None, conversation_history: List = None) -> Dict:
-        """Main chat function with conversation history support"""
+        """Main chat function with conversation history support and Redis caching"""
         if not conversation_id:
             conversation_id = str(uuid.uuid4())
         
         print(f"\nProcessing query: {user_query}")
         print(f"Conversation history length: {len(conversation_history) if conversation_history else 0}")
+        
+        # CACHE CHECK: Before processing, check if this exact query is cached
+        cached_response = self.cache.get(user_query)
+        if cached_response:
+            logger.info(f"Returning cached response for: {user_query[:50]}...")
+            # Update conversation_id to match current session
+            cached_response['conversation_id'] = conversation_id
+            return cached_response
         
         try:
             # Detect question type
@@ -282,11 +294,15 @@ Brief intro (1 line if needed)
                 for match in search_results.get('matches', [])
             ]
             
-            return {
+            # CACHE STORE: Save response to Redis with 1 hour TTL
+            response_data = {
                 'answer': answer,
                 'sources': sources,
                 'conversation_id': conversation_id
             }
+            self.cache.set(user_query, response_data)
+            
+            return response_data
         
         except Exception as e:
             print(f"Error in chat: {str(e)}")

@@ -219,7 +219,7 @@ const ChatWindow = ({ onClose }) => {
         }}
       >
         <div>
-          <h3 style={{ fontSize: '1.2rem', fontWeight: 600, margin: 0 }}>Policy Assistant</h3>
+          <h3 style={{ fontSize: '1.2rem', fontWeight: 600, margin: 0 }}>Tx Policy Assistant</h3>
           <p style={{ fontSize: '0.7rem', margin: '4px 0 0 0', opacity: 0.8 }}>
             {/* 💬 {messages.length - 1} messages */}
           </p>

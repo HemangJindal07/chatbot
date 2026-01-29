@@ -71,7 +71,7 @@ function App() {
           marginBottom: '1rem',
           fontWeight: 'bold',
         }}>
-          Welcome to Policy Bot
+          Welcome to Tx Policy Bot
         </h1>
         <p style={{
           fontSize: '1.2rem',

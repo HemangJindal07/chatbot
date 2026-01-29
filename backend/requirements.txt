@@ -29,3 +29,4 @@ langchain-openai==0.0.2
 tiktoken==0.5.1
 pydantic==2.5.0
 pydantic-settings==2.1.0
+redis==5.0.1
