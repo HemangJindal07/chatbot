@@ -25,12 +25,12 @@ const Message = ({ message }) => {
         {!isUser && sources && sources.length > 0 && (
           <div className="mt-3 space-y-1">
             <p className="text-xs font-semibold text-gray-500 mb-2">Sources:</p>
-            {sources.slice(0, 3).map((source, idx) => (
+                {sources.slice(0, 3).map((source, idx) => (
               <div
                 key={idx}
                 className="text-xs bg-blue-50 text-blue-700 px-2.5 py-1.5 rounded-full inline-block mr-1.5 mb-1"
               >
-                📄 {source.source} · Page {source.page}
+                {source.source} · Page {source.page}
               </div>
             ))}
           </div>
