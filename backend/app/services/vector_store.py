@@ -24,7 +24,7 @@ class PineconeVectorStore:
         index_name = settings.INDEX_NAME
         
         if index_name not in self.pc.list_indexes().names():
-            print(f"🔨 Creating new Pinecone index: {index_name}")
+            print(f"Creating new Pinecone index: {index_name}")
             
             self.pc.create_index(
                 name=index_name,
@@ -34,18 +34,18 @@ class PineconeVectorStore:
             )
             
             while not self.pc.describe_index(index_name).status['ready']:
-                print("⏳ Waiting for index to be ready...")
+                print("Waiting for index to be ready...")
                 time.sleep(1)
             
-            print("✅ Index created successfully!")
+            print("Index created successfully!")
         else:
-            print(f"✅ Connected to existing index: {index_name}")
+            print(f"Connected to existing index: {index_name}")
         
         return self.pc.Index(index_name)
     
     def generate_embeddings(self, texts: List[str]) -> List[List[float]]:
         """Generate embeddings using OpenAI with custom base URL"""
-        print(f"🔄 Generating embeddings for {len(texts)} texts...")
+        print(f"Generating embeddings for {len(texts)} texts...")
         
         batch_size = 2048
         all_embeddings = []
@@ -61,10 +61,10 @@ class PineconeVectorStore:
                 
                 embeddings = [item.embedding for item in response.data]
                 all_embeddings.extend(embeddings)
-                print(f"   ✓ Processed {len(all_embeddings)}/{len(texts)}")
+                print(f"   Processed {len(all_embeddings)}/{len(texts)}")
         
         except Exception as e:
-            print(f"❌ Error generating embeddings: {str(e)}")
+            print(f"Error generating embeddings: {str(e)}")
             raise
         
         return all_embeddings
@@ -88,14 +88,14 @@ class PineconeVectorStore:
         
         # Upsert in batches
         batch_size = 100
-        print(f"\n📤 Uploading {len(vectors)} vectors to Pinecone...")
+        print(f"\nUploading {len(vectors)} vectors to Pinecone...")
         
         for i in range(0, len(vectors), batch_size):
             batch = vectors[i:i + batch_size]
             self.index.upsert(vectors=batch)
-            print(f"   ✓ Uploaded {min(i + batch_size, len(vectors))}/{len(vectors)}")
+            print(f"   Uploaded {min(i + batch_size, len(vectors))}/{len(vectors)}")
         
-        print("✅ All vectors uploaded successfully!")
+        print("All vectors uploaded successfully!")
     
     def search(self, query: str, top_k: int = 5) -> Dict:
         """Search for relevant documents"""
@@ -113,5 +113,5 @@ class PineconeVectorStore:
             return results
         
         except Exception as e:
-            print(f"❌ Error searching: {str(e)}")
+            print(f"Error searching: {str(e)}")
             raise

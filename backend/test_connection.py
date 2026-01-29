@@ -14,7 +14,7 @@ settings = get_settings()
 
 def test_openai_connection():
     """Test connection to custom OpenAI endpoint"""
-    print("🔍 Testing connection to custom OpenAI endpoint...")
+    print("Testing connection to custom OpenAI endpoint...")
     print(f"Base URL: {settings.OPENAI_BASE_URL}")
     
     try:
@@ -24,7 +24,7 @@ def test_openai_connection():
         )
         
         # Test chat completion
-        print("\n1️⃣ Testing chat completion...")
+        print("\n1. Testing chat completion...")
         response = client.chat.completions.create(
             model=settings.LLM_MODEL,
             messages=[
@@ -33,24 +33,24 @@ def test_openai_connection():
             temperature=0.1
         )
         
-        print(f"✅ Chat completion successful!")
+        print(f"Chat completion successful!")
         print(f"Response: {response.choices[0].message.content}")
         
         # Test embeddings
-        print("\n2️⃣ Testing embeddings generation...")
+        print("\n2. Testing embeddings generation...")
         embedding_response = client.embeddings.create(
             input=["Test text for embedding"],
             model=settings.EMBEDDING_MODEL
         )
         
-        print(f"✅ Embeddings generation successful!")
+        print(f"Embeddings generation successful!")
         print(f"Embedding dimension: {len(embedding_response.data[0].embedding)}")
         
-        print("\n✅ All tests passed! Your custom OpenAI endpoint is working correctly.")
+        print("\nAll tests passed! Your custom OpenAI endpoint is working correctly.")
         return True
     
     except Exception as e:
-        print(f"\n❌ Connection test failed: {str(e)}")
+        print(f"\nConnection test failed: {str(e)}")
         print("\nPlease check:")
         print("1. Your API key is correct")
         print("2. The base URL is accessible")

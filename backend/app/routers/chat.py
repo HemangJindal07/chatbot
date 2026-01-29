@@ -13,9 +13,9 @@ router = APIRouter(prefix="/api", tags=["chat"])
 # Initialize chatbot (singleton)
 try:
     chatbot = PolicyChatbot()
-    logger.info("✅ Chatbot initialized successfully")
+    logger.info("Chatbot initialized successfully")
 except Exception as e:
-    logger.error(f"❌ Failed to initialize chatbot: {str(e)}")
+    logger.error(f"Failed to initialize chatbot: {str(e)}")
     chatbot = None
 
 @router.get("/health", response_model=HealthResponse)
