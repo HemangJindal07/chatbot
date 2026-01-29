@@ -10,10 +10,11 @@ function App() {
     <div 
       style={{
         fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        background: '#ffffff',
         minHeight: '100vh',
         width: '100vw',
         display: 'flex',
+        flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center',
         position: 'fixed',
@@ -23,10 +24,46 @@ function App() {
         bottom: 0,
       }}
     >
+      {/* Header with Logo */}
+      <div style={{
+        position: 'absolute',
+        top: '20px',
+        left: '30px',
+        zIndex: 100,
+      }}>
+        <img 
+          src="/tx.png" 
+          alt="TestingXperts" 
+          style={{
+            height: '80px',
+            width: 'auto',
+            objectFit: 'contain',
+          }}
+        />
+      </div>
+
+      {/* TxMinds Logo - Right */}
+      <div style={{
+        position: 'absolute',
+        top: '20px',
+        right: '30px',
+        zIndex: 100,
+      }}>
+        <img 
+          src="/txminds.png" 
+          alt="TxMinds" 
+          style={{
+            height: '80px',
+            width: 'auto',
+            objectFit: 'contain',
+          }}
+        />
+      </div>
+      
       {/* Page Content */}
       <div style={{
         textAlign: 'center',
-        color: 'white',
+        color: '#0a0a0a',
         padding: '20px',
       }}>
         <h1 style={{

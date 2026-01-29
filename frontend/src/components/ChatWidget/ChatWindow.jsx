@@ -8,7 +8,7 @@ const ChatWindow = ({ onClose }) => {
     return saved ? JSON.parse(saved) : [
       {
         id: 1,
-        content: "Hello! I'm your Policy Bot. Select a policy document to see what you can ask about.",
+        content: "Hello! I'm your Policy Assistant. Here are some common questions I can help you with:",
         isUser: false,
         timestamp: new Date().toISOString(),
       },
@@ -22,53 +22,37 @@ const ChatWindow = ({ onClose }) => {
     return saved || null;
   });
   
-  // NEW: States for policies and suggestions
-  const [policies, setPolicies] = useState([]);
-  const [loadingPolicies, setLoadingPolicies] = useState(false);
-  const [selectedPolicy, setSelectedPolicy] = useState(null);
+  // Suggestions state
   const [suggestions, setSuggestions] = useState([]);
   const [loadingSuggestions, setLoadingSuggestions] = useState(false);
   
   const messagesEndRef = useRef(null);
   const chatMessagesRef = useRef(null);
 
-  // Load policies when component mounts
+  // Load suggestions when component mounts
   useEffect(() => {
-    loadPolicies();
+    loadSuggestions();
   }, []);
 
-  const loadPolicies = async () => {
-    setLoadingPolicies(true);
-    try {
-    const response = await chatAPI.getPolicies();
-    setPolicies(response.policies || []);
-    console.log('Loaded policies:', response.policies);
-    } catch (error) {
-      console.error('Failed to load policies:', error);
-    } finally {
-      setLoadingPolicies(false);
-    }
-  };
-
-  const handlePolicyClick = async (policy) => {
-    setSelectedPolicy(policy);
+  const loadSuggestions = async () => {
     setLoadingSuggestions(true);
-    
     try {
-    const response = await chatAPI.getPolicySuggestions(policy.filename);
-    setSuggestions(response.suggestions || []);
-    console.log('Generated suggestions:', response.suggestions);
+      const response = await chatAPI.getSuggestions(5);
+      setSuggestions(response.suggestions || []);
+      console.log('💡 Loaded suggestions:', response.suggestions);
     } catch (error) {
       console.error('Failed to load suggestions:', error);
-      setSuggestions([]);
+      // Fallback suggestions
+      setSuggestions([
+        { question: 'What is the password policy?', category: 'IT Security' },
+        { question: 'What is POSH?', category: 'Workplace Safety' },
+        { question: 'Can I work from home?', category: 'Remote Work' },
+        { question: 'What is the VPN policy?', category: 'Network Access' },
+        { question: 'How do I report harassment?', category: 'HR' },
+      ]);
     } finally {
       setLoadingSuggestions(false);
     }
-  };
-
-  const handleBackToPolicies = () => {
-    setSelectedPolicy(null);
-    setSuggestions([]);
   };
 
   useEffect(() => {
@@ -94,10 +78,6 @@ const ChatWindow = ({ onClose }) => {
   const handleSend = async (messageText = null) => {
     const message = messageText || input.trim();
     if (!message || loading) return;
-
-    // Hide suggestions after first message
-    setSelectedPolicy(null);
-    setSuggestions([]);
 
     const userMessage = {
       id: Date.now(),
@@ -165,38 +145,51 @@ const ChatWindow = ({ onClose }) => {
     setMessages([
       {
         id: 1,
-        content: "Hello! I'm your Policy Bot. Select a policy document to see what you can ask about.",
+        content: "Hello! I'm your Policy Assistant. Here are some common questions I can help you with:",
         isUser: false,
         timestamp: new Date().toISOString(),
       },
     ]);
     setConversationId(null);
-    setSelectedPolicy(null);
-    setSuggestions([]);
-    loadPolicies(); // Reload policies
+    loadSuggestions(); // Reload suggestions
   };
 
   // Show suggestions only when conversation just started
   const showSuggestions = messages.length === 1;
 
+  // Icon mapping for categories
+  const categoryIcons = {
+    'IT Security': '',
+    'Workplace Safety': '',
+    'Remote Work': '',
+    'Network Access': '',
+    'HR': '',
+    'IT Policy': '',
+    'Security': '',
+    'Email': '',
+    'Data Protection': '',
+  };
+
   return (
-  <div
-    style={{
-      position: 'fixed',
-      bottom: '100px',
-      right: '30px',
-      width: '1050px',           // Increased from 380px
-      height: '550px',          // Increased from 550px
-      background: 'white',
-      borderRadius: '15px',
-      boxShadow: '0 10px 40px rgba(0, 0, 0, 0.3)',
-      display: 'flex',
-      flexDirection: 'column',
-      overflow: 'hidden',
-      zIndex: 999,
-      animation: 'slideUp 0.3s ease',
-    }}
-  >
+    <div
+      style={{
+        position: 'fixed',
+        bottom: '100px',
+        right: '30px',
+        width: '500px',
+        height: '700px',
+        maxWidth: 'calc(100vw - 40px)',
+        maxHeight: 'calc(100vh - 120px)',
+        background: 'white',
+        borderRadius: '15px',
+        boxShadow: '0 10px 40px rgba(0, 0, 0, 0.3)',
+        display: 'flex',
+        flexDirection: 'column',
+        overflow: 'hidden',
+        zIndex: 999,
+        animation: 'slideUp 0.3s ease',
+      }}
+    >
       <style>
         {`
           @keyframes slideUp {
@@ -226,15 +219,15 @@ const ChatWindow = ({ onClose }) => {
         }}
       >
         <div>
-          <h3 style={{ fontSize: '1.2rem', fontWeight: 600, margin: 0 }}>Policy Bot</h3>
+          <h3 style={{ fontSize: '1.2rem', fontWeight: 600, margin: 0 }}>Policy Assistant</h3>
           <p style={{ fontSize: '0.7rem', margin: '4px 0 0 0', opacity: 0.8 }}>
-            {/* {messages.length - 1} messages */}
+            {/* 💬 {messages.length - 1} messages */}
           </p>
         </div>
         <div style={{ display: 'flex', gap: '5px' }}>
           <button
             onClick={handleClearConversation}
-            title="Clear conversation"
+            title="New conversation"
             style={{
               background: 'none',
               border: 'none',
@@ -322,160 +315,77 @@ const ChatWindow = ({ onClose }) => {
           </div>
         ))}
 
-        {/* Policy Selection - Show only at start */}
-        {showSuggestions && !selectedPolicy && (
-          <div style={{ marginTop: '20px', animation: 'fadeIn 0.5s ease' }}>
-              <p style={{ 
-              fontSize: '0.85rem', 
-              color: '#666', 
-              marginBottom: '12px',
-              fontWeight: 500 
-            }}>
-              Available Policies:
-            </p>
-            
-            {loadingPolicies ? (
-              <div style={{ textAlign: 'center', padding: '20px', color: '#999' }}>
-                Loading policies...
-              </div>
-            ) : policies.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '20px', color: '#999' }}>
-                No policies found. Please add PDF files to the backend.
-              </div>
-            ) : (
-              <div style={{ 
-                display: 'grid', 
-                gridTemplateColumns: '1fr',
-                gap: '8px' 
-              }}>
-                {policies.map((policy, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => handlePolicyClick(policy)}
-                    style={{
-                      background: 'white',
-                      border: '1px solid #e0e0e0',
-                      borderRadius: '10px',
-                      padding: '12px',
-                      fontSize: '0.85rem',
-                      color: '#333',
-                      cursor: 'pointer',
-                      transition: 'all 0.2s ease',
-                      textAlign: 'left',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '10px',
-                      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)',
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.borderColor = '#667eea';
-                      e.currentTarget.style.background = '#f0f4ff';
-                      e.currentTarget.style.transform = 'translateX(4px)';
-                      e.currentTarget.style.boxShadow = '0 4px 8px rgba(102, 126, 234, 0.15)';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.borderColor = '#e0e0e0';
-                      e.currentTarget.style.background = 'white';
-                      e.currentTarget.style.transform = 'translateX(0)';
-                      e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.05)';
-                    }}
-                  >
-                    <span style={{ fontSize: '1.5rem' }}>{policy.icon}</span>
-                    <div style={{ flex: 1 }}>
-                      <div style={{ fontWeight: 600, marginBottom: '2px' }}>
-                        {policy.display_name}
-                      </div>
-                      <div style={{ fontSize: '0.7rem', color: '#999' }}>
-                        Click to see topics
-                      </div>
-                    </div>
-                    <span style={{ color: '#667eea', fontSize: '1.2rem' }}>→</span>
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
+        {/* Smart Suggestions - Professional UI */}
 
-        {/* Suggestions - Show after policy selected */}
-        {showSuggestions && selectedPolicy && (
-          <div style={{ marginTop: '20px', animation: 'fadeIn 0.5s ease' }}>
-            <div style={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              gap: '8px',
-              marginBottom: '12px'
-            }}>
-              <button
-                onClick={handleBackToPolicies}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  color: '#667eea',
-                  cursor: 'pointer',
-                  fontSize: '1.2rem',
-                  padding: '4px',
-                }}
-              >
-                ←
-              </button>
-              <p style={{ 
-                fontSize: '0.85rem', 
-                color: '#666',
-                fontWeight: 500,
-                margin: 0
-              }}>
-                {selectedPolicy.icon} {selectedPolicy.display_name}
-              </p>
-            </div>
-            
-            {loadingSuggestions ? (
-              <div style={{ textAlign: 'center', padding: '20px', color: '#999' }}>
-                Generating suggestions...
-              </div>
-            ) : (
-              <div style={{ 
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '8px' 
-              }}>
-                {suggestions.map((suggestion, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => handleSuggestionClick(suggestion.question)}
-                    style={{
-                      background: 'white',
-                      border: '1px solid #e0e0e0',
-                      borderRadius: '10px',
-                      padding: '12px',
-                      fontSize: '0.85rem',
-                      color: '#333',
-                      cursor: 'pointer',
-                      transition: 'all 0.2s ease',
-                      textAlign: 'left',
-                      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)',
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.borderColor = '#667eea';
-                      e.currentTarget.style.background = '#f0f4ff';
-                      e.currentTarget.style.transform = 'translateX(4px)';
-                      e.currentTarget.style.boxShadow = '0 4px 8px rgba(102, 126, 234, 0.15)';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.borderColor = '#e0e0e0';
-                      e.currentTarget.style.background = 'white';
-                      e.currentTarget.style.transform = 'translateX(0)';
-                      e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.05)';
-                    }}
-                  >
-                    {suggestion.question}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
 
+{/* Smart Suggestions - Clean Text Only */}
+{showSuggestions && (
+  <div style={{ marginTop: '20px', animation: 'fadeIn 0.5s ease' }}>
+    <p style={{ 
+      fontSize: '0.7rem', 
+      color: '#a0aec0', 
+      marginBottom: '12px',
+      fontWeight: 500,
+      letterSpacing: '0.8px',
+      textTransform: 'uppercase'
+    }}>
+      Popular Questions
+    </p>
+    
+    {loadingSuggestions ? (
+      <div style={{ 
+        textAlign: 'center', 
+        padding: '30px 20px', 
+        color: '#a0aec0',
+        fontSize: '0.8rem'
+      }}>
+        Generating suggestions...
+      </div>
+    ) : (
+      <div style={{ 
+        display: 'flex',
+        flexWrap: 'wrap',      
+        gap: '8px',         
+        alignItems: 'flex-start'
+      }}>
+        {suggestions.map((suggestion, idx) => (
+          <button
+            key={idx}
+            onClick={() => handleSuggestionClick(suggestion.question)}
+            style={{
+              background: 'white',
+              border: '1px solid #e2e8f0',
+              borderRadius: '10px',
+              padding: '12px 14px',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+              textAlign: 'left',
+              boxShadow: '0 1px 2px rgba(0, 0, 0, 0.04)',
+              fontSize: '0.85rem',
+              color: '#4a5568',
+              fontWeight: 400,
+              lineHeight: '1.4',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor = '#667eea';
+              e.currentTarget.style.background = '#f7fafc';
+              e.currentTarget.style.transform = 'translateX(4px)';
+              e.currentTarget.style.boxShadow = '0 2px 8px rgba(102, 126, 234, 0.1)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = '#e2e8f0';
+              e.currentTarget.style.background = 'white';
+              e.currentTarget.style.transform = 'translateX(0)';
+              e.currentTarget.style.boxShadow = '0 1px 2px rgba(0, 0, 0, 0.04)';
+            }}
+          >
+            {suggestion.question}
+          </button>
+        ))}
+      </div>
+    )}
+  </div>
+)}
         {/* Typing Indicator */}
         {loading && (
           <div style={{ display: 'flex', justifyContent: 'flex-start', marginBottom: '15px' }}>
