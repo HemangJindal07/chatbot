@@ -39,7 +39,7 @@ const ChatWindow = ({ onClose }) => {
     try {
       const response = await chatAPI.getSuggestions(5);
       setSuggestions(response.suggestions || []);
-      console.log('💡 Loaded suggestions:', response.suggestions);
+      console.log('Loaded suggestions:', response.suggestions);
     } catch (error) {
       console.error('Failed to load suggestions:', error);
       // Fallback suggestions
@@ -221,7 +221,7 @@ const ChatWindow = ({ onClose }) => {
         <div>
           <h3 style={{ fontSize: '1.2rem', fontWeight: 600, margin: 0 }}>Tx Policy Assistant</h3>
           <p style={{ fontSize: '0.7rem', margin: '4px 0 0 0', opacity: 0.8 }}>
-            {/* 💬 {messages.length - 1} messages */}
+            {/* {messages.length - 1} messages */}
           </p>
         </div>
         <div style={{ display: 'flex', gap: '5px' }}>

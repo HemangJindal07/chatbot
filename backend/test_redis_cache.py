@@ -15,10 +15,10 @@ def test_redis_connection():
     cache = get_redis_cache()
     
     if cache.is_connected():
-        print("✓ Redis connection successful")
+        print("[PASS] Redis connection successful")
         return True
     else:
-        print("✗ Redis connection failed - ensure Redis is running on localhost:6379")
+        print("[FAIL] Redis connection failed - ensure Redis is running on localhost:6379")
         return False
 
 def test_cache_key_generation():
@@ -39,16 +39,16 @@ def test_cache_key_generation():
     print(f"  Key: {keys[1]}")
     
     if keys[0] == keys[1]:
-        print("✓ Same queries produce identical keys (as expected)")
+        print("[PASS] Same queries produce identical keys (as expected)")
     else:
-        print("✗ Same queries produced different keys (unexpected)")
+        print("[FAIL] Same queries produced different keys (unexpected)")
         return False
     
     if keys[0] != keys[2]:
-        print("✓ Different queries produce different keys (as expected)")
+        print("[PASS] Different queries produce different keys (as expected)")
         return True
     else:
-        print("✗ Different queries produced same keys (unexpected)")
+        print("[FAIL] Different queries produced same keys (unexpected)")
         return False
 
 def test_cache_set_get():
@@ -57,7 +57,7 @@ def test_cache_set_get():
     cache = get_redis_cache()
     
     if not cache.is_connected():
-        print("✗ Redis not connected, skipping test")
+        print("[FAIL] Redis not connected, skipping test")
         return False
     
     test_query = "What is POSH policy?"
@@ -71,20 +71,20 @@ def test_cache_set_get():
     print(f"Setting cache for: {test_query}")
     success = cache.set(test_query, test_response)
     if success:
-        print("✓ Cache set successful")
+        print("[PASS] Cache set successful")
     else:
-        print("✗ Cache set failed")
+        print("[FAIL] Cache set failed")
         return False
     
     # Get cache
     print(f"Getting cache for: {test_query}")
     cached = cache.get(test_query)
     if cached:
-        print("✓ Cache get successful")
+        print("[PASS] Cache get successful")
         print(f"  Cached answer: {cached['answer']}")
         return True
     else:
-        print("✗ Cache get failed")
+        print("[FAIL] Cache get failed")
         return False
 
 def test_cache_ttl():
@@ -96,7 +96,7 @@ def test_cache_ttl():
     test_cache = RedisCache(ttl_seconds=2)
     
     if not test_cache.is_connected():
-        print("✗ Redis not connected, skipping TTL test")
+        print("[FAIL] Redis not connected, skipping TTL test")
         return False
     
     test_query = "TTL test query"
@@ -107,20 +107,20 @@ def test_cache_ttl():
     print(f"Checking immediately...")
     
     if test_cache.get(test_query):
-        print("✓ Cache hit (immediate check)")
+        print("[PASS] Cache hit (immediate check)")
     else:
-        print("✗ Cache miss (immediate check)")
+        print("[FAIL] Cache miss (immediate check)")
         return False
     
     print(f"Waiting 3 seconds for TTL expiration...")
     time.sleep(3)
     
     if not test_cache.get(test_query):
-        print("✓ Cache expired after TTL (as expected)")
+        print("[PASS] Cache expired after TTL (as expected)")
         test_cache.delete(test_query)  # Cleanup
         return True
     else:
-        print("✗ Cache still valid after TTL (unexpected)")
+        print("[FAIL] Cache still valid after TTL (unexpected)")
         test_cache.delete(test_query)  # Cleanup
         return False
 
@@ -141,14 +141,14 @@ def main():
     print("TEST SUMMARY")
     print("="*50)
     for test_name, passed in results.items():
-        status = "✓ PASS" if passed else "✗ FAIL"
+        status = "[PASS]" if passed else "[FAIL]"
         print(f"{test_name}: {status}")
     
     all_passed = all(results.values())
     if all_passed:
-        print("\n✓ All tests passed! Redis caching is working correctly.")
+        print("\n[INFO] All tests passed! Redis caching is working correctly.")
     else:
-        print("\n✗ Some tests failed. Check Redis connection and configuration.")
+        print("\n[INFO] Some tests failed. Check Redis connection and configuration.")
     
     return all_passed
 

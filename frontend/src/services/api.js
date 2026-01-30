@@ -1,7 +1,8 @@
 // // frontend/src/services/api.js
 // import axios from 'axios';
 
-// const API_BASE_URL = 'http://localhost:8000/api';
+// Backend at 192.168.13.235:8000
+// const API_BASE_URL = 'http://192.168.13.235:8000/api';
 
 // const api = axios.create({
 //   baseURL: API_BASE_URL,
@@ -73,7 +74,10 @@
 // frontend/src/services/api.js
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:8000/api';
+// const API_BASE_URL = 'http://localhost:8001/api';
+
+
+const API_BASE_URL = 'http://192.168.13.235:8001/api';
 
 const api = axios.create({
   baseURL: API_BASE_URL,

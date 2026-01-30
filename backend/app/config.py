@@ -25,7 +25,8 @@ class Settings(BaseSettings):
     TOP_K_RESULTS: int = 5
     
     # CORS
-    CORS_ORIGINS: list = ["http://localhost:5173", "http://localhost:3000"]
+    # Updated for frontend at 192.168.13.235:5173
+    CORS_ORIGINS: list = ["http://localhost:5173", "http://localhost:3000", "http://127.0.0.1:5173", "http://127.0.0.1:3000", "http://192.168.13.235:5173", "http://192.168.13.235:3000"]
     
     class Config:
         env_file = ".env"
